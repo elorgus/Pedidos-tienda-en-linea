@@ -26,7 +26,3 @@ docker-compose.override.yml
 # OS
 .DS_Store
 Thumbs.db
-
-# Coverage
-coverage/
-.nyc_output/
