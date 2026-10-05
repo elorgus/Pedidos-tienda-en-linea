@@ -1,10 +1,18 @@
 {
   "name": "Tienda Online Dev",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "image": "mcr.microsoft.com/devcontainers/java:21-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
       "moby": "true"
+    },
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "none",
+      "installMaven": "true",
+      "mavenVersion": "3.9.9"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
     }
   },
   "customizations": {
@@ -18,5 +26,5 @@
   },
   "forwardPorts": [3000, 5435, 5675, 15675],
   "postCreateCommand": "node -v && npm -v && docker --version",
-  "remoteUser": "node"
+  "remoteUser": "vscode"
 }
