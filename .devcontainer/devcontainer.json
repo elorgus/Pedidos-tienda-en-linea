@@ -1,20 +1,22 @@
 {
   "name": "Tienda Online Dev",
-  "dockerComposeFile": ["../docker-compose.yml"],
-  "service": "app",
-  "workspaceFolder": "/app",
-  "shutdownAction": "stopCompose",
+  "image": "mcr.microsoft.com/devcontainers/java:21-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": "true"
+    }
+  },
   "customizations": {
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "ms-azuretools.vscode-docker",
-        "cweijan.vscode-postgresql-client2"
+        "ms-azuretools.vscode-docker"
       ]
     }
   },
-  "forwardPorts": [3000, 5432],
-  "postCreateCommand": "npm install",
-  "remoteUser": "app"
+  "forwardPorts": [3000, 5435, 5675, 15675],
+  "postCreateCommand": "node -v && npm -v && docker --version",
+  "remoteUser": "vscode"
 }
