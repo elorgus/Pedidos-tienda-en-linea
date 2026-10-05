@@ -1,0 +1,26 @@
+C4Container
+    title Contenedores - Sistema de Pedidos Tienda Online
+
+    Person(cliente, "Cliente")
+    Person(operador, "Operador")
+
+    Container_Boundary(b1, "Sistema de Pedidos") {
+        Container(api, "API REST", "Node.js 20 + Express", "Pedidos, pagos, inventario")
+        ContainerDb(db, "PostgreSQL", "16", "Clientes, productos, pedidos, lineas")
+        ContainerQueue(mq, "RabbitMQ", "3.13", "Eventos pedido.creado")
+        ContainerWorker(consumer, "Consumer async", "Node.js worker", "Procesa pago, confirma stock")
+        ContainerJob(job, "Job liberar reservas", "Node.js setInterval", "Cada 1 min libera reservas expiradas")
+        Container(web, "Frontend", "HTML/JS", "Catalogo + carrito")
+    }
+
+    System_Ext(pago, "Pasarela de pago", "Autoriza")
+
+    Rel(cliente, web, "Usa", "HTTPS")
+    Rel(operador, web, "Usa", "HTTPS")
+    Rel(web, api, "Consume API", "JSON/HTTPS")
+    Rel(api, db, "SQL", "TCP")
+    Rel(api, mq, "Publica pedido.creado", "AMQP")
+    Rel(consumer, mq, "Consume pedido.creado", "AMQP")
+    Rel(consumer, pago, "Autoriza", "REST/HTTPS")
+    Rel(consumer, db, "Actualiza pedido, stock", "SQL")
+    Rel(job, db, "Libera reservas expiradas", "SQL")
