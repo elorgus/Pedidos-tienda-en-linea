@@ -1,6 +1,6 @@
 {
   "name": "Tienda Online Dev",
-  "image": "mcr.microsoft.com/devcontainers/java:21-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
@@ -18,5 +18,5 @@
   },
   "forwardPorts": [3000, 5435, 5675, 15675],
   "postCreateCommand": "node -v && npm -v && docker --version",
-  "remoteUser": "vscode"
+  "remoteUser": "node"
 }
