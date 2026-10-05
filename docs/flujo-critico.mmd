@@ -1,0 +1,43 @@
+sequenceDiagram
+    actor Cli as Cliente
+    participant Web as Frontend
+    participant API as API REST
+    participant DB as PostgreSQL
+    participant MQ as RabbitMQ
+    participant Cons as Consumer
+    participant Pago as Pasarela de pago
+
+    Cli->>Web: Arma carrito y confirma
+    Web->>API: POST /api/v1/pedidos (Idempotency-Key, items)
+    API->>DB: Buscar pedido por idempotency_key
+
+    alt Pedido ya existe
+        DB-->>API: Pedido existente
+        API-->>Web: 200 OK (pedido original)
+    else Pedido nuevo
+        API->>DB: BEGIN
+        API->>DB: UPDATE productos SET stock_reservado = stock_reservado + N
+        Note over API,DB: Si algun producto no tiene stock -> ROLLBACK -> 409
+        API->>DB: INSERT pedido (estado PENDIENTE, reserva_expira_en = now + 15min)
+        API->>DB: INSERT lineas_pedido
+        API->>DB: COMMIT
+        API->>MQ: Publicar pedido.creado
+        API-->>Web: 201 Created (PENDIENTE)
+        Web-->>Cli: "Pedido recibido, procesando pago"
+
+        MQ-->>Cons: Entrega pedido.creado
+        Cons->>Pago: POST /autorizar
+        alt Pago aprobado
+            Pago-->>Cons: APROBADO
+            Cons->>DB: UPDATE productos SET stock = stock - N, stock_reservado = stock_reservado - N
+            Cons->>DB: UPDATE pedido SET estado = PAGADO
+            Cons-->>Cli: Notificacion push/email
+        else Pago rechazado
+            Pago-->>Cons: RECHAZADO
+            Cons->>DB: UPDATE productos SET stock_reservado = stock_reservado - N
+            Cons->>DB: UPDATE pedido SET estado = CANCELADO (motivo = rechazo)
+            Cons-->>Cli: Notificacion
+        end
+    end
+
+    Note over DB,Cons: Si la reserva expira sin pago, un job libera el stock y cancela el pedido
