@@ -1,0 +1,17 @@
+C4Context
+    title Contexto - Sistema de Pedidos Tienda Online
+
+    Person(cliente, "Cliente", "Compra desde web y redes sociales")
+    Person(operador, "Operador de tienda", "Prepara y despacha pedidos")
+
+    System(tienda, "Sistema de Pedidos", "Gestiona pedido, pago, inventario y despacho")
+
+    System_Ext(pago, "Pasarela de pago", "Autoriza tarjetas")
+    System_Ext(envio, "Proveedor de envio", "Entrega a domicilio")
+    System_Ext(notif, "Proveedor de notificaciones", "Email/SMS al cliente")
+
+    Rel(cliente, tienda, "Crea pedido", "HTTPS/JSON")
+    Rel(operador, tienda, "Gestiona despacho", "HTTPS")
+    Rel(tienda, pago, "Autoriza pago", "REST/HTTPS")
+    Rel(tienda, envio, "Solicita envio", "REST/HTTPS")
+    Rel(tienda, notif, "Notifica estado", "REST/HTTPS")
