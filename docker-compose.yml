@@ -8,6 +8,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - tienda-net
 
@@ -30,18 +32,22 @@ services:
     networks:
       - tienda-net
 
-  # Mensajería: activar cuando existan tareas asíncronas reales
-  # rabbitmq:
-  #   image: rabbitmq:3.13-management-alpine
-  #   container_name: tienda-rabbit
-  #   environment:
-  #     RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-  #     RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-  #   ports:
-  #     - "${RABBITMQ_PORT}:5672"
-  #     - "${RABBITMQ_MGMT_PORT}:15672"
-  #   networks:
-  #     - tienda-net
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: tienda-rabbit
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MGMT_PORT}:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - tienda-net
 
 volumes:
   postgres_data:
